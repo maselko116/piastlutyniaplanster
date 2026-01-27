@@ -2,25 +2,37 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Piast Lutynia Planster - LIVE</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Piast Lutynia Planster</title>
     <style>
         :root {
-            --dark-green: #0a290a;
-            --mid-green: #145214;
-            --light-green: #2eb82e;
-            --gold: #ffd700;
-            --black: #000000;
-            --danger: #cc0000;
-            --warn: #ffcc00;
-            --text-main: #e0e0e0;
+            /* Nowoczesna Paleta - UPDATE */
+            --bg-app: #121212;         /* Głęboka czerń */
+            --bg-card: #242424;        /* Jaśniejszy szary - lepszy kontrast */
+            --bg-input: #333333;       /* Wyraźne pola tekstowe */
+            
+            /* Nowy zielony - bardziej sportowy/profesjonalny */
+            --primary: #10b981;        
+            --primary-hover: #059669;
+            
+            --accent-gold: #fbbf24;    /* Złoto */
+            
+            --status-yes: #10b981;     
+            --status-maybe: #f59e0b;   
+            --status-no: #ef4444;      
+            
+            --text-main: #f3f4f6;      /* Prawie biały - super czytelny */
+            --text-muted: #9ca3af;     /* Szary tekst pomocniczy */
+            
+            --border-radius: 12px;
+            --border-color: #404040;   /* Kolor ramek */
         }
 
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--black);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #000;
             color: var(--text-main);
             margin: 0;
             padding: 0;
@@ -32,76 +44,311 @@
         .app-container {
             width: 100%;
             max-width: 500px;
-            background: linear-gradient(180deg, var(--dark-green) 0%, var(--black) 100%);
+            background-color: var(--bg-app);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             position: relative;
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
         }
 
+        /* HEADER */
         header {
-            background-color: var(--dark-green);
-            padding: 20px;
-            text-align: center;
-            border-bottom: 2px solid var(--gold);
+            padding: 30px 20px;
+            background-color: var(--bg-app);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        h1 { margin: 0; color: var(--gold); text-transform: uppercase; letter-spacing: 2px; font-size: 1.5rem; }
+        h1 {
+            margin: 0;
+            color: white;
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
 
-        .view { display: none; padding: 20px; flex: 1; }
-        .view.active { display: flex; flex-direction: column; gap: 15px; animation: fadeIn 0.3s ease-in; }
+        h1 span { color: var(--primary); }
 
-        .login-btn-group { display: flex; gap: 10px; margin-bottom: 20px; }
-        .role-btn { flex: 1; padding: 15px; background: var(--mid-green); border: 1px solid var(--light-green); color: white; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .role-btn.selected { background: var(--gold); color: var(--black); border-color: var(--gold); }
+        #user-display {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+            font-weight: 500;
+        }
 
+        /* VIEWS */
+        .view { display: none; padding: 20px; flex: 1; overflow-y: auto; }
+        .view.active { display: flex; flex-direction: column; gap: 24px; animation: fadeIn 0.3s ease-out; }
+
+        /* INPUTS & FORMS */
         input[type="text"], input[type="password"], input[type="date"], input[type="time"] {
-            width: 100%; padding: 12px; background: rgba(0,0,0,0.5); border: 1px solid var(--mid-green); color: white; border-radius: 5px; margin-bottom: 10px;
+            width: 100%;
+            padding: 16px;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color); /* Dodana ramka dla widoczności */
+            color: white;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            margin-bottom: 12px;
+            transition: 0.2s all;
         }
-        input:focus { outline: none; border-color: var(--gold); }
 
-        .action-btn { width: 100%; padding: 15px; background: var(--light-green); color: var(--black); border: none; font-weight: bold; font-size: 1rem; cursor: pointer; text-transform: uppercase; border-radius: 5px; margin-top: 10px; }
-        .action-btn:hover { background: var(--gold); }
+        input::placeholder { color: #888; }
 
-        .training-card { background: rgba(20, 82, 20, 0.4); border-left: 4px solid var(--gold); padding: 15px; border-radius: 4px; margin-bottom: 10px; }
-        .training-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .training-date { color: var(--gold); font-weight: bold; font-size: 1.1rem; }
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background-color: #3a3a3a;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+        }
 
-        .stats-summary { display: flex; justify-content: space-between; gap: 5px; background: rgba(0,0,0,0.6); padding: 10px; border-radius: 5px; margin: 10px 0; text-align: center; }
-        .stat-box { display: flex; flex-direction: column; align-items: center; flex: 1; }
-        .stat-count { font-size: 1.2rem; font-weight: bold; }
-        .stat-label { font-size: 0.7rem; text-transform: uppercase; color: #aaa; margin-top: 2px; }
-        .color-yes { color: var(--light-green); }
-        .color-no { color: var(--danger); }
-        .color-maybe { color: var(--warn); }
-
-        .attendance-options { display: flex; gap: 8px; margin-top: 10px; }
-        .att-btn { flex: 1; padding: 12px 5px; border: none; cursor: pointer; font-size: 0.8rem; border-radius: 4px; opacity: 0.7; text-transform: uppercase; font-weight: 600; transition: all 0.2s; }
-        .att-btn.active { opacity: 1; font-weight: 800; transform: scale(1.02); box-shadow: 0 0 8px rgba(255,255,255,0.3); border: 1px solid white; }
-        .btn-yes { background-color: var(--light-green); color: black; }
-        .btn-no { background-color: var(--danger); color: white; }
-        .btn-maybe { background-color: var(--warn); color: black; }
-
-        .note-input { width: 100%; margin-top: 10px; padding: 8px; background: rgba(0,0,0,0.3); border: 1px solid #444; color: #ccc; font-size: 0.8rem; border-radius: 4px; }
-        .player-note-display { font-size: 0.75rem; color: #aaa; font-style: italic; margin-top: 2px; display: block; }
-
-        .stats-list { font-size: 0.9rem; margin-top: 10px; background: rgba(0,0,0,0.3); padding: 10px; max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
-        .stats-list.expanded { max-height: 800px; } /* Zwiększone dla bezpieczeństwa */
-        .stat-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding: 8px 0; }
-        .toggle-details-btn { background: none; border: 1px solid #444; color: #aaa; width: 100%; padding: 8px; margin-top: 5px; cursor: pointer; font-size: 0.8rem; }
-
-        .logout-link { text-align: center; color: #666; margin-top: 20px; cursor: pointer; text-decoration: underline; padding: 10px; }
-        .admin-panel { margin-top: 30px; padding-top: 15px; border-top: 2px dashed #333; }
-        .player-manage-item { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); padding: 10px; margin-bottom: 8px; border-radius: 4px; border-left: 2px solid var(--mid-green); }
-        .player-manage-item button { background: var(--danger); color: white; border: none; padding: 6px 12px; font-size: 0.75rem; cursor: pointer; border-radius: 3px; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* BUTTONS */
+        .action-btn {
+            width: 100%;
+            padding: 18px;
+            background-color: var(--primary);
+            color: #000;
+            border: none;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: var(--border-radius);
+            margin-top: 10px;
+            transition: transform 0.1s, background-color 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
         
-        /* Loading spinner */
-        #loading-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:flex; justify-content:center; align-items:center; z-index:999; }
-        .spinner { border: 4px solid #333; border-top: 4px solid var(--gold); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        .action-btn:active { transform: scale(0.98); }
+        .action-btn:hover { background-color: var(--primary-hover); }
+
+        /* LOGIN ROLE SELECTION - BIG FIX */
+        .login-btn-group {
+            display: flex;
+            gap: 15px; /* Odstęp między guzikami */
+            margin-bottom: 25px;
+        }
+
+        .role-btn {
+            flex: 1;
+            padding: 20px 10px;
+            background: transparent;
+            border: 2px solid var(--border-color); /* Wyraźna ramka */
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border-radius: var(--border-radius);
+            transition: 0.3s all;
+            text-transform: uppercase;
+        }
+
+        /* Stan zaznaczony - wyraźny kontrast */
+        .role-btn.selected {
+            background-color: var(--primary);
+            color: #000; /* Czarny tekst na zielonym */
+            border-color: var(--primary);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); /* Lekka poświata */
+            transform: translateY(-2px);
+        }
+
+        /* CARDS (Treningi) */
+        .training-card {
+            background-color: var(--bg-card);
+            padding: 24px;
+            border-radius: var(--border-radius);
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color); /* Subtelna ramka */
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+
+        .training-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #333;
+        }
+
+        .training-date {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .training-desc {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: #fff;
+            line-height: 1.4;
+        }
+
+        /* ATTENDANCE BUTTONS - BIGGER & CLEARER */
+        .attendance-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .att-btn {
+            padding: 15px 5px;
+            border: 1px solid var(--border-color);
+            background-color: #2c2c2c; 
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.75rem;
+            border-radius: 8px;
+            font-weight: 700;
+            transition: 0.2s;
+            text-transform: uppercase;
+        }
+
+        /* Aktywne stany */
+        .att-btn.btn-yes.active { background-color: var(--status-yes); color: white; border-color: var(--status-yes); }
+        .att-btn.btn-maybe.active { background-color: var(--status-maybe); color: black; border-color: var(--status-maybe); }
+        .att-btn.btn-no.active { background-color: var(--status-no); color: white; border-color: var(--status-no); }
+
+        /* NOTATKI */
+        .note-input {
+            width: 100%;
+            margin-top: 20px;
+            padding: 12px;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            font-size: 0.85rem;
+            border-radius: 8px;
+        }
+        .note-input:focus { border-color: var(--text-muted); }
+
+        /* STATS (Dla trenera) */
+        .stats-summary {
+            display: flex;
+            justify-content: space-between;
+            background-color: #1a1a1a;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-box { display: flex; flex-direction: column; align-items: center; flex: 1; }
+        .stat-count { font-size: 1.2rem; font-weight: 700; color: white; }
+        .stat-label { font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); margin-top: 6px; letter-spacing: 0.5px; }
+        
+        .color-yes .stat-count { color: var(--status-yes); }
+        .color-maybe .stat-count { color: var(--status-maybe); }
+        .color-no .stat-count { color: var(--status-no); }
+
+        /* LISTA OBECNOŚCI - NOWA LEPSZA */
+        .stats-list {
+            margin-top: 15px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background: #1a1a1a;
+            border-radius: 8px;
+            /* Usunięcie paddingu tutaj, żeby paski sięgały krawędzi */
+        }
+        .stats-list.expanded { max-height: 800px; border: 1px solid var(--border-color); }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            border-bottom: 1px solid #2a2a2a;
+            border-left: 4px solid transparent; /* Pasek statusu */
+        }
+        
+        /* Paski (Zebra) dla lepszej czytelności */
+        .stat-item:nth-child(even) { background-color: rgba(255, 255, 255, 0.03); }
+        .stat-item:last-child { border-bottom: none; }
+
+        /* Kolory pasków bocznych */
+        .stat-item.status-yes { border-left-color: var(--status-yes); background-color: rgba(16, 185, 129, 0.05); }
+        .stat-item.status-maybe { border-left-color: var(--status-maybe); }
+        .stat-item.status-no { border-left-color: var(--status-no); }
+
+        .stat-item-info span { font-weight: 600; font-size: 0.95rem; }
+
+        .toggle-details-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            width: 100%;
+            padding: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 10px;
+        }
+
+        /* ADMIN PANEL */
+        .admin-panel {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid var(--border-color);
+        }
+        .admin-section-title {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+
+        .player-manage-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--bg-card);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .delete-btn {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--status-no);
+            border: 1px solid var(--status-no);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* UTILS */
+        .logout-link {
+            text-align: center;
+            color: var(--text-muted);
+            margin-top: 40px;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            text-decoration: underline;
+            opacity: 0.8;
+        }
+
+        /* SPINNER */
+        #loading-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background:var(--bg-app); display:flex; justify-content:center; align-items:center; z-index:999; }
+        .spinner { border: 3px solid #333; border-top: 3px solid var(--primary); border-radius: 50%; width: 50px; height: 50px; animation: spin 0.8s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
     </style>
 </head>
 <body>
@@ -110,58 +357,77 @@
     <div id="loading-overlay"><div class="spinner"></div></div>
 
     <header>
-        <h1>Team Planer</h1>
-        <div id="user-display" style="font-size: 0.8rem; color: #888; margin-top: 5px;"></div>
+        <h1>Piast Lutynia <span style="color:var(--primary)">Planster</span></h1>
+        <div id="user-display"></div>
     </header>
 
+    <!-- VIEW 1: LOGIN -->
     <div id="view-login" class="view active">
-        <h2 style="color: var(--light-green); text-align: center;">Kto wbija?</h2>
+        <div style="margin-top: 30px; margin-bottom: 40px; text-align: center;">
+            <p style="color: var(--text-muted); font-size: 1rem; margin-bottom: 5px;">Witaj zawodniku Piasta Lutynia!</p>
+            <p style="color: #666; font-size: 0.85rem; margin: 0;">Wybierz kim jesteś i odznacz się na trening.</p>
+        </div>
         
         <div class="login-btn-group">
             <button class="role-btn" onclick="window.selectRole('player', this)">ZAWODNIK</button>
             <button class="role-btn" onclick="window.selectRole('coach', this)">TRENER</button>
         </div>
 
-        <input type="text" id="username-input" placeholder="Wpisz imię / ksywę">
-        <input type="password" id="user-code" placeholder="PIN dostępu">
+        <div>
+            <label style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 5px; display: block; margin-left: 2px;">Twoje dane:</label>
+            <input type="text" id="username-input" placeholder="Login / Imie">
+            <input type="password" id="user-code" placeholder="Kod PIN" style="margin-top: 5px;">
+        </div>
         
-        <button class="action-btn" onclick="window.tryLogin()">Wchodzę</button>
-        <p id="login-msg" style="color: var(--danger); text-align: center; margin-top: 10px;"></p>
+        <button class="action-btn" onclick="window.tryLogin()">ZALOGUJ SIĘ</button>
+        <p id="login-msg" style="color: var(--status-no); text-align: center; margin-top: 15px; font-size: 0.9rem; min-height: 20px;"></p>
     </div>
 
+    <!-- VIEW 2: COACH DASHBOARD -->
     <div id="view-coach" class="view">
-        <h3 style="border-bottom: 1px solid var(--mid-green); padding-bottom: 5px;">Dodaj Trening</h3>
-        <input type="date" id="new-date">
-        <input type="time" id="new-time">
-        <input type="text" id="new-desc" placeholder="Opis (np. Siłka, Murawa, Bieganie)">
-        <button class="action-btn" onclick="window.addTraining()">Dodaj do kalendarza</button>
+        
+        <!-- Dodawanie -->
+        <div style="background: var(--bg-card); padding: 25px; border-radius: var(--border-radius); border: 1px solid var(--border-color);">
+            <p class="admin-section-title" style="margin-top: 0;">Dodaj Trening</p>
+            <div style="display: flex; gap: 15px; margin-bottom: 10px;">
+                <input type="date" id="new-date" style="flex: 3; margin:0;">
+                <input type="time" id="new-time" style="flex: 2; margin:0;">
+            </div>
+            <input type="text" id="new-desc" placeholder="Opis (np. Mecz Sparingowy)" style="margin-top: 10px;">
+            <button class="action-btn" onclick="window.addTraining()" style="margin-top: 15px;">DODAJ DO KALENDARZA</button>
+        </div>
 
-        <h3 style="margin-top: 30px;">Raport Trenera</h3>
+        <!-- Lista -->
+        <p class="admin-section-title" style="margin-bottom: 5px; margin-top: 20px;">Nadchodzące wydarzenia</p>
         <div id="coach-list"></div>
         
+        <!-- Admin -->
         <div class="admin-panel">
-            <h3 style="color: var(--gold); font-size: 1rem;">Zarządzanie Drużyną</h3>
-            <div style="margin-bottom: 15px;">
-                <p style="font-size: 0.8rem; color: #888; margin-bottom: 10px;">Dodaj nowego zawodnika:</p>
-                <input type="text" id="new-player-name" placeholder="Ksywa zawodnika (np. kuba)">
-                <input type="text" id="new-player-pin" placeholder="Nadaj PIN (np. 1234)">
-                <button class="action-btn" onclick="window.addNewPlayer()" style="background-color: var(--mid-green); border: 1px solid var(--gold); color: white;">Dodaj Zawodnika</button>
+            <p class="admin-section-title">Zarządzanie Kadrą</p>
+            
+            <div style="background: var(--bg-card); padding: 20px; border-radius: var(--border-radius); margin-bottom: 20px; border: 1px solid var(--border-color);">
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <input type="text" id="new-player-name" placeholder="Login" style="margin: 0; flex: 2;">
+                    <input type="text" id="new-player-pin" placeholder="PIN" style="margin: 0; flex: 1;">
+                </div>
+                <button class="action-btn" onclick="window.addNewPlayer()" style="background-color: #333; color: white; padding: 12px; margin-top:0;">+ Dodaj Gracza</button>
             </div>
 
-            <p style="font-size: 0.8rem; color: #888; margin-bottom: 5px;">Lista zawodników:</p>
             <div id="active-players-list"></div>
         </div>
 
-        <div class="logout-link" onclick="window.logout()">Wyloguj</div>
+        <div class="logout-link" onclick="window.logout()">Wyloguj się</div>
     </div>
 
+    <!-- VIEW 3: PLAYER DASHBOARD -->
     <div id="view-player" class="view">
-        <h3 style="color: var(--gold);">Nadchodzące Treningi</h3>
+        <p class="admin-section-title" style="text-align: center;">Twoje Plany</p>
         <div id="player-list"></div>
-        <div class="logout-link" onclick="window.logout()">Wyloguj</div>
+        <div class="logout-link" onclick="window.logout()">Wyloguj się</div>
     </div>
 </div>
 
+<!-- FIREBASE LOGIC (NIERUSZANA) -->
 <script type="module">
     // 1. IMPORTY Z CHMURY
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -170,7 +436,7 @@
         getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, onSnapshot, query, where, setDoc 
     } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // 2. TWOJA KONFIGURACJA (WKLEJONA OD CIEBIE)
+    // 2. TWOJA KONFIGURACJA
     const firebaseConfig = {
       apiKey: "AIzaSyDEzxhaTnwaf1iQ2e5KHbfhEb32OkE3RWc",
       authDomain: "piastlutyniaplanster.firebaseapp.com",
@@ -197,36 +463,32 @@
 
     // --- NASŁUCHIWANIE DANYCH (REAL-TIME) ---
     
-    // 1. Pobieraj użytkowników (Kolekcja "zawodnicy")
+    // 1. Pobieraj użytkowników
     const usersUnsub = onSnapshot(collection(db, "zawodnicy"), (snapshot) => {
         const newUsers = {};
         snapshot.forEach(doc => {
             const data = doc.data();
-            // Klucz to login, wartość to obiekt z pinem i ID dokumentu (do usuwania)
             if(data.login) {
                 newUsers[data.login] = { pin: data.pin, id: doc.id };
             }
         });
         usersCache = newUsers;
         console.log("Pobrano użytkowników:", Object.keys(usersCache).length);
-        
-        // Jeśli trener jest zalogowany, odśwież mu listę zarządzania
         if(currentUser && currentUser.role === 'coach') renderPlayerManagement();
     });
 
-    // 2. Pobieraj treningi (Kolekcja "treningi")
+    // 2. Pobieraj treningi
     const trainingsUnsub = onSnapshot(collection(db, "treningi"), (snapshot) => {
         const list = [];
         snapshot.forEach(doc => {
             list.push({ id: doc.id, ...doc.data() });
         });
-        // Sortowanie po dacie (najbliższe najpierw)
+        // Sortowanie
         trainingsCache = list.sort((a,b) => new Date(a.date + 'T' + a.time) - new Date(b.date + 'T' + b.time));
         
         console.log("Pobrano treningi:", trainingsCache.length);
         document.getElementById('loading-overlay').style.display = 'none';
 
-        // Odśwież widok
         if(currentUser) {
             if(currentUser.role === 'coach') renderCoachList();
             else renderPlayerList();
@@ -249,30 +511,26 @@
         if (!selectedRole) { msg.innerText = "Wybierz: TRENER czy ZAWODNIK?"; return; }
         if (!loginInput || !pinInput) { msg.innerText = "Podaj login i PIN!"; return; }
 
-        msg.innerText = "Sprawdzam w bazie...";
+        msg.innerText = "Logowanie...";
 
-        // Sprawdzamy w lokalnym cache (jest szybciej)
         const userFound = usersCache[loginInput];
 
         if (userFound) {
             if (userFound.pin === pinInput) {
-                // Pin się zgadza. Teraz sprawdzamy uprawnienia.
                 if (selectedRole === 'coach') {
                     if (loginInput === 'dawid') {
-                        // SUKCES TRENERA
                         enterApp(loginInput, 'coach');
                     } else {
-                        msg.innerText = "Brak uprawnień trenera! Zaloguj się jako zawodnik.";
+                        msg.innerText = "Brak uprawnień trenera!";
                     }
                 } else {
-                    // SUKCES ZAWODNIKA
                     enterApp(loginInput, 'player');
                 }
             } else {
                 msg.innerText = "Zły PIN!";
             }
         } else {
-            msg.innerText = "Nie ma takiego ziomeczka w bazie.";
+            msg.innerText = "Brak użytkownika w bazie.";
         }
     };
 
@@ -284,7 +542,6 @@
         document.getElementById('view-login').classList.remove('active');
         document.getElementById('login-msg').innerText = "";
         
-        // Wyczyść pola
         document.getElementById('username-input').value = '';
         document.getElementById('user-code').value = '';
 
@@ -316,15 +573,13 @@
         if(!date || !time || !desc) return alert("Wypełnij wszystko!");
 
         try {
-            // Dodajemy do kolekcji 'treningi'
             await addDoc(collection(db, "treningi"), {
                 date: date,
                 time: time,
                 desc: desc,
-                attendance: {}, // Pusty obiekt na start
-                notes: {}       // Pusty obiekt na start
+                attendance: {},
+                notes: {}
             });
-            alert("Trening dodany!");
             document.getElementById('new-desc').value = '';
         } catch (e) {
             console.error(e);
@@ -333,7 +588,7 @@
     };
 
     window.deleteTraining = async (id) => {
-        if(confirm("Usunąć ten trening na zawsze?")) {
+        if(confirm("Usunąć ten trening?")) {
             await deleteDoc(doc(db, "treningi", id));
         }
     };
@@ -347,30 +602,40 @@
             const notes = t.notes || {};
             
             let countYes = 0, countNo = 0, countMaybe = 0;
-            let listHTML = '';
-
-            // Iterujemy po wszystkich znanych użytkownikach, żeby pokazać nawet tych, co nie głosowali
-            // Albo iterujemy po głosach? Lepiej po głosach + sortowanie.
-            // Tutaj wersja prosta: iterujemy po wpisach w attendance
+            
+            // --- NOWOŚĆ: Przygotowanie listy z sortowaniem ---
+            let playersStatus = [];
+            
             for (const [player, status] of Object.entries(att)) {
                 if(status === 'yes') countYes++;
                 if(status === 'no') countNo++;
                 if(status === 'maybe') countMaybe++;
-
-                let color = status === 'yes' ? 'var(--light-green)' : (status === 'no' ? 'var(--danger)' : 'var(--warn)');
-                let icon = status === 'yes' ? '✅' : (status === 'no' ? '❌' : '❓');
-                const dispName = player.charAt(0).toUpperCase() + player.slice(1);
-                
-                const playerNote = notes[player] ? `<span class="player-note-display">📝 ${notes[player]}</span>` : '';
-
-                listHTML += `<div class="stat-item">
-                                <div class="stat-item-info">
-                                    <span>${dispName}</span>
-                                    ${playerNote}
-                                </div>
-                                <span style="color:${color}; font-weight:bold;">${icon}</span>
-                             </div>`;
+                playersStatus.push({ name: player, status: status, note: notes[player] || '' });
             }
+
+            // Sortowanie: Yes -> Maybe -> No
+            const statusOrder = { 'yes': 1, 'maybe': 2, 'no': 3 };
+            playersStatus.sort((a, b) => (statusOrder[a.status] || 4) - (statusOrder[b.status] || 4));
+
+            // Generowanie HTML listy
+            let listHTML = '';
+            playersStatus.forEach(p => {
+                let colorClass = p.status === 'yes' ? 'var(--status-yes)' : (p.status === 'no' ? 'var(--status-no)' : 'var(--status-maybe)');
+                let statusClass = p.status === 'yes' ? 'status-yes' : (p.status === 'no' ? 'status-no' : 'status-maybe');
+                let icon = p.status === 'yes' ? 'OBECNY' : (p.status === 'no' ? 'ODPADA' : 'MYŚLI');
+                
+                const dispName = p.name.charAt(0).toUpperCase() + p.name.slice(1);
+                const noteHTML = p.note ? `<div style="color:#888; font-size:0.75rem; margin-top:2px;">"${p.note}"</div>` : '';
+
+                listHTML += `<div class="stat-item ${statusClass}">
+                                <div class="stat-item-info">
+                                    <span style="font-weight:600; color:white;">${dispName}</span>
+                                    ${noteHTML}
+                                </div>
+                                <span style="color:${colorClass}; font-size:0.75rem; font-weight:800; letter-spacing:0.5px;">${icon}</span>
+                             </div>`;
+            });
+            // ------------------------------------------------
 
             const totalVotes = countYes + countNo + countMaybe;
             const presenceRate = totalVotes > 0 ? Math.round((countYes / totalVotes) * 100) : 0;
@@ -380,9 +645,9 @@
                 <div class="training-card">
                     <div class="training-header">
                         <span class="training-date">${t.date} | ${t.time}</span>
-                        <button onclick="window.deleteTraining('${t.id}')" style="color:#666; background:none; border:none; cursor:pointer;">X</button>
+                        <button onclick="window.deleteTraining('${t.id}')" style="color:#666; background:none; border:none; cursor:pointer;">✕</button>
                     </div>
-                    <div style="font-size: 1.1rem; margin-bottom: 10px;">${t.desc}</div>
+                    <div class="training-desc">${t.desc}</div>
                     
                     <div class="stats-summary">
                         <div class="stat-box color-yes">
@@ -397,15 +662,17 @@
                             <span class="stat-count">${countNo}</span>
                             <span class="stat-label">Odpada</span>
                         </div>
-                        <div class="stat-box" style="border-left: 1px solid #444; padding-left: 10px;">
-                            <span class="stat-count" style="color:white;">${presenceRate}%</span>
-                            <span class="stat-label">Freq</span>
+                        <div class="stat-box" style="border-left: 1px solid #333; padding-left: 10px;">
+                            <span class="stat-count" style="color:var(--text-main);">${presenceRate}%</span>
+                            <span class="stat-label">Frekwencja</span>
                         </div>
                     </div>
 
-                    <button class="toggle-details-btn" onclick="window.toggleDetails('${t.id}')">Pokaż/Ukryj listę</button>
+                    <button class="toggle-details-btn" onclick="window.toggleDetails('${t.id}')">
+                        ${isExpanded ? 'Ukryj listę' : 'Pokaż listę obecności'}
+                    </button>
                     <div class="stats-list ${isExpanded}">
-                        ${listHTML || '<div style="text-align:center; color:#666;">Brak głosów</div>'}
+                        ${listHTML || '<div style="text-align:center; color:#555; font-size:0.8rem;">Jeszcze nikt nie głosował</div>'}
                     </div>
                 </div>
             `;
@@ -418,13 +685,12 @@
         renderCoachList(); 
     };
 
-    // --- ZARZĄDZANIE GRACZAMI (ADMIN) ---
+    // --- ADMIN ---
 
     window.renderPlayerManagement = () => {
         const listContainer = document.getElementById('active-players-list');
         listContainer.innerHTML = '';
 
-        // Filtrujemy, żeby nie pokazywać trenera (dawida) do usunięcia, choć można
         const players = Object.entries(usersCache).filter(([login, data]) => login !== 'dawid');
 
         if (players.length === 0) {
@@ -436,8 +702,8 @@
             const dispName = login.charAt(0).toUpperCase() + login.slice(1);
             listContainer.innerHTML += `
                 <div class="player-manage-item">
-                    <span>${dispName} (PIN: ${data.pin})</span>
-                    <button onclick="window.deletePlayer('${data.id}', '${login}')">USUŃ</button>
+                    <span style="font-weight:500;">${dispName} <span style="color:#666; font-size:0.8rem;">(PIN: ${data.pin})</span></span>
+                    <button class="delete-btn" onclick="window.deletePlayer('${data.id}', '${login}')">USUŃ</button>
                 </div>
             `;
         });
@@ -451,11 +717,7 @@
         if(usersCache[name]) return alert("Taki login już istnieje!");
 
         try {
-            await addDoc(collection(db, "zawodnicy"), {
-                login: name,
-                pin: pin
-            });
-            // Pola wyczyszczą się same po odświeżeniu, ale dla UX:
+            await addDoc(collection(db, "zawodnicy"), { login: name, pin: pin });
             document.getElementById('new-player-name').value = '';
             document.getElementById('new-player-pin').value = '';
         } catch (e) {
@@ -470,14 +732,14 @@
         }
     };
 
-    // --- FUNKCJE ZAWODNIKA ---
+    // --- PLAYER ---
 
     window.renderPlayerList = () => {
         const container = document.getElementById('player-list');
         container.innerHTML = '';
 
         if (trainingsCache.length === 0) {
-            container.innerHTML = '<p style="text-align:center; color:#666;">Brak planów. Odpoczywaj.</p>';
+            container.innerHTML = '<div style="text-align:center; margin-top:50px; opacity:0.5;"><p style="font-size:3rem; margin:0;">🏖️</p><p>Luzik, brak treningów.</p></div>';
             return;
         }
 
@@ -493,7 +755,7 @@
                     <div class="training-header">
                         <span class="training-date">${t.date} ${t.time}</span>
                     </div>
-                    <div style="font-size: 1.2rem; margin-bottom: 15px;">${t.desc}</div>
+                    <div class="training-desc">${t.desc}</div>
                     
                     <div class="attendance-options">
                         <button class="att-btn btn-yes ${myStatus === 'yes' ? 'active' : ''}" onclick="window.setAttendance('${t.id}', 'yes')">BĘDĘ</button>
@@ -503,40 +765,24 @@
                     
                     <input type="text" 
                            class="note-input" 
-                           placeholder="Dopisek (np. spóźnię się)" 
+                           placeholder="Dopisek dla trenera..." 
                            value="${myNote}" 
                            onchange="window.saveNote('${t.id}', this.value)"> 
-                           </div>
+                </div>
             `;
         });
     };
 
     window.setAttendance = async (trainingId, status) => {
-        // Aktualizujemy konkretne pole w mapie 'attendance' w dokumencie treningu
         const trainingRef = doc(db, "treningi", trainingId);
         const fieldPath = `attendance.${currentUser.name}`;
-        
-        try {
-            await updateDoc(trainingRef, {
-                [fieldPath]: status
-            });
-        } catch (e) {
-            console.error(e);
-            alert("Nie udało się zapisać głosu :(");
-        }
+        try { await updateDoc(trainingRef, { [fieldPath]: status }); } catch (e) { console.error(e); }
     };
 
     window.saveNote = async (trainingId, text) => {
         const trainingRef = doc(db, "treningi", trainingId);
         const fieldPath = `notes.${currentUser.name}`;
-        
-        try {
-            await updateDoc(trainingRef, {
-                [fieldPath]: text
-            });
-        } catch (e) {
-            console.error(e);
-        }
+        try { await updateDoc(trainingRef, { [fieldPath]: text }); } catch (e) { console.error(e); }
     };
 
 </script>
