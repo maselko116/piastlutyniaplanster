@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Manager - Prototyp</title>
+    <style>
+        :root {
+            --dark-green: #0a290a;
+            --mid-green: #145214;
+            --light-green: #2eb82e;
+            --gold: #ffd700;       /* Nagłówki */
+            --black: #000000;
+            --danger: #cc0000;
+            --warn: #ffcc00;       /* Nowy, bardziej złoty kolor dla "Nie wiem" */
+            --text-main: #e0e0e0;
+        }
+
+        * {
+            box-sizing: border-box; /* Kluczowe dla responsywności */
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--black);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 500px;
+            background: linear-gradient(180deg, var(--dark-green) 0%, var(--black) 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
+        }
+
+        /* Header */
+        header {
+            background-color: var(--dark-green);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid var(--gold);
+        }
+
+        h1 {
+            margin: 0;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 1.5rem;
+        }
+
+        /* Views */
+        .view {
+            display: none; /* Domyślnie ukryte */
+            padding: 20px;
+            flex: 1;
+        }
+
+        .view.active {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        /* Login Panel */
+        .login-btn-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .role-btn {
+            flex: 1;
+            padding: 15px;
+            background: var(--mid-green);
+            border: 1px solid var(--light-green);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .role-btn.selected {
+            background: var(--gold);
+            color: var(--black);
+            border-color: var(--gold);
+        }
+
+        input[type="text"], input[type="password"], input[type="date"], input[type="time"] {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid var(--mid-green);
+            color: white;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--gold);
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--light-green);
+            color: var(--black);
+            border: none;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .action-btn:hover {
+            background: var(--gold);
+        }
+
+        /* Cards */
+        .training-card {
+            background: rgba(20, 82, 20, 0.4);
+            border-left: 4px solid var(--gold);
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .training-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .training-date {
+            color: var(--gold);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        /* Coach Stats Section */
+        .stats-summary {
+            display: flex;
+            justify-content: space-between; /* Lepsze rozłożenie na małych ekranach */
+            gap: 5px;
+            background: rgba(0,0,0,0.6);
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .stat-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1; /* Równe szerokości kolumn */
+        }
+
+        .stat-count {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: #aaa;
+            margin-top: 2px;
+        }
+
+        .color-yes { color: var(--light-green); }
+        .color-no { color: var(--danger); }
+        .color-maybe { color: var(--warn); }
+
+        /* Attendance Buttons */
+        .attendance-options {
+            display: flex;
+            gap: 8px; /* Odrobinę większy odstęp */
+            margin-top: 10px;
+        }
+
+        .att-btn {
+            flex: 1;
+            padding: 12px 5px; /* Większe pole dotyku dla palca */
+            border: none;
+            cursor: pointer;
+            font-size: 0.8rem;
+            border-radius: 4px;
+            opacity: 0.7;
+            text-transform: uppercase;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .att-btn.active {
+            opacity: 1;
+            font-weight: 800;
+            transform: scale(1.02);
+            box-shadow: 0 0 8px rgba(255,255,255,0.3);
+            border: 1px solid white; /* Wyraźniejsze zaznaczenie */
+        }
+
+        .btn-yes { background-color: var(--light-green); color: black; }
+        .btn-no { background-color: var(--danger); color: white; }
+        .btn-maybe { background-color: var(--warn); color: black; }
+
+        /* Coach Stats Details */
+        .stats-list {
+            font-size: 0.9rem;
+            margin-top: 10px;
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .stats-list.expanded {
+            max-height: 500px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #333;
+            padding: 8px 0; /* Większy odstęp dla czytelności */
+        }
+
+        .toggle-details-btn {
+            background: none;
+            border: 1px solid #444;
+            color: #aaa;
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        /* Utility */
+        .logout-link {
+            text-align: center;
+            color: #666;
+            margin-top: 20px;
+            cursor: pointer;
+            text-decoration: underline;
+            padding: 10px; /* Łatwiej trafić palcem */
+        }
+        
+        /* Sekcja zarządzania graczami (Lista) */
+        .admin-panel {
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 2px dashed #333;
+        }
+
+        .player-manage-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            border-left: 2px solid var(--mid-green);
+        }
+
+        .player-manage-item button {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <header>
+        <h1>Team Planer</h1>
+        <div id="user-display" style="font-size: 0.8rem; color: #888; margin-top: 5px;"></div>
+    </header>
+
+    <!-- VIEW 1: LOGIN -->
+    <div id="view-login" class="view active">
+        <h2 style="color: var(--light-green); text-align: center;">Kto wbija?</h2>
+        
+        <div class="login-btn-group">
+            <button class="role-btn" onclick="selectRole('player', this)">ZAWODNIK</button>
+            <button class="role-btn" onclick="selectRole('coach', this)">TRENER</button>
+        </div>
+
+        <input type="text" id="username-input" placeholder="Wpisz imię / ksywę">
+        
+        <input type="password" id="user-code" placeholder="PIN dostępu">
+        
+        <button class="action-btn" onclick="login()">Wchodzę</button>
+    </div>
+
+    <!-- VIEW 2: COACH DASHBOARD -->
+    <div id="view-coach" class="view">
+        <h3 style="border-bottom: 1px solid var(--mid-green); padding-bottom: 5px;">Dodaj Trening</h3>
+        <input type="date" id="new-date">
+        <input type="time" id="new-time">
+        <input type="text" id="new-desc" placeholder="Opis (np. Siłka, Murawa, Bieganie)">
+        <button class="action-btn" onclick="addTraining()">Dodaj do kalendarza</button>
+
+        <h3 style="margin-top: 30px;">Raport Trenera</h3>
+        <div id="coach-list"></div> <!-- Lista generowana przez JS -->
+        
+        <!-- NOWA SEKCJA: ZARZĄDZANIE DRUŻYNĄ -->
+        <div class="admin-panel">
+            <h3 style="color: var(--gold); font-size: 1rem;">Zarządzanie Drużyną</h3>
+            
+            <div style="margin-bottom: 15px;">
+                <p style="font-size: 0.8rem; color: #888; margin-bottom: 10px;">Dodaj nowego zawodnika:</p>
+                <input type="text" id="new-player-name" placeholder="Ksywa zawodnika">
+                <input type="text" id="new-player-pin" placeholder="Nadaj PIN (np. 1234)">
+                <button class="action-btn" onclick="addNewPlayer()" style="background-color: var(--mid-green); border: 1px solid var(--gold); color: white;">Dodaj Zawodnika</button>
+            </div>
+
+            <p style="font-size: 0.8rem; color: #888; margin-bottom: 5px;">Lista zawodników:</p>
+            <div id="active-players-list"></div>
+        </div>
+
+        <div class="logout-link" onclick="logout()">Wyloguj</div>
+    </div>
+
+    <!-- VIEW 3: PLAYER DASHBOARD -->
+    <div id="view-player" class="view">
+        <h3 style="color: var(--gold);">Nadchodzące Treningi</h3>
+        <div id="player-list"></div> <!-- Lista generowana przez JS -->
+
+        <div class="logout-link" onclick="logout()">Wyloguj</div>
+    </div>
+
+</div>
+
+<script>
+    // --- GLOBALNA OBSŁUGA BŁĘDÓW (Dla unhandled exceptions) ---
+    window.onerror = function(message, source, lineno, colno, error) {
+        console.error("KRYTYCZNY BŁĄD:", message, error);
+        alert("Wystąpił błąd aplikacji: " + message + ". Odśwież stronę.");
+        return true; // Zapobiega domyślnej obsłudze (opcjonalne)
+    };
+
+    // --- STATIC DATABASE (DEFAULTS) ---
+    const DEFAULT_USERS = {
+        "maslo": "1919",
+        "czaja": "1212",
+        "dawid": "2356" // Trener
+    };
+
+    // --- DANE POCZĄTKOWE ---
+    const INITIAL_TRAININGS = [
+        { id: 1, date: "2026-02-01", time: "18:00", desc: "Trening Biegowy - Stadion" },
+        { id: 2, date: "2026-02-03", time: "19:30", desc: "Siłownia + Sauna" }
+    ];
+
+    // --- STATE MANAGEMENT ---
+    let savedData = localStorage.getItem('teamAppData');
+    let appData;
+
+    try {
+        if (savedData) {
+            appData = JSON.parse(savedData);
+            if (!appData.users) {
+                appData.users = DEFAULT_USERS;
+            }
+        } else {
+            appData = {
+                users: DEFAULT_USERS,
+                trainings: INITIAL_TRAININGS,
+                attendance: {} 
+            };
+            localStorage.setItem('teamAppData', JSON.stringify(appData));
+        }
+    } catch (e) {
+        console.error("Błąd ładowania danych startowych:", e);
+        alert("Błąd danych! Aplikacja zresetuje ustawienia.");
+        localStorage.removeItem('teamAppData');
+        location.reload();
+    }
+
+    let currentUser = null; 
+    let expandedCards = new Set(); // Pamiętamy, które karty są rozwinięte
+
+    // --- AUTOMATYCZNE ODŚWIEŻANIE (AUTO-SYNC) ---
+    // Sprawdzamy co 10 sekund, czy dane w localStorage się zmieniły
+    setInterval(() => {
+        try {
+            if (!currentUser) return; // Działa tylko jak ktoś jest zalogowany
+
+            const currentString = localStorage.getItem('teamAppData');
+            // Jeśli dane na dysku są inne niż te, które mamy załadowane...
+            if (currentString && currentString !== JSON.stringify(appData)) {
+                console.log("Wykryto zmianę danych! Odświeżam widok...");
+                appData = JSON.parse(currentString); // Aktualizujemy pamięć
+                
+                // Odświeżamy widok zależnie od roli
+                if (currentUser.role === 'coach') {
+                    renderCoachList();
+                    renderPlayerManagement();
+                } else {
+                    renderPlayerList();
+                }
+            }
+        } catch (error) {
+            console.error("Błąd synchronizacji (Auto-Sync):", error);
+            // Nie wyświetlamy alertu w pętli, żeby nie irytować użytkownika,
+            // ale logujemy błąd w konsoli dla diagnostyki.
+        }
+    }, 10000); // Interwał: 10000ms = 10 sekund
+
+    function saveData() {
+        try {
+            localStorage.setItem('teamAppData', JSON.stringify(appData));
+        } catch (e) {
+            console.error("Błąd zapisu danych:", e);
+            alert("Nie udało się zapisać zmian! Sprawdź pamięć urządzenia.");
+        }
+    }
+
+    // --- NAVIGATION & SECURITY ---
+    let selectedRole = '';
+
+    function selectRole(role, btnElement) {
+        selectedRole = role;
+        document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('selected'));
+        btnElement.classList.add('selected');
+    }
+
+    function login() {
+        try {
+            // Przed logowaniem zawsze pobierz najświeższe dane
+            const freshData = localStorage.getItem('teamAppData');
+            if (freshData) appData = JSON.parse(freshData);
+
+            const nameInput = document.getElementById('username-input').value.trim().toLowerCase(); 
+            const codeInput = document.getElementById('user-code').value.trim();
+
+            if (!selectedRole) return alert("Wybierz: Trener czy Zawodnik?");
+            if (!nameInput) return alert("Podaj imię!");
+            if (!codeInput) return alert("Podaj PIN!");
+
+            // ZABEZPIECZENIE: Sprawdzamy, czy ktoś nie próbuje wejść na trenera nie będąc Dawidem
+            if (selectedRole === 'coach' && nameInput !== 'dawid') {
+                return alert("BŁĄD DOSTĘPU: Tylko Trener Dawid ma dostęp do tego panelu! Jeśli jesteś zawodnikiem, zmień przycisk na górze.");
+            }
+
+            const validPin = appData.users[nameInput];
+
+            if (validPin) {
+                if (validPin === codeInput) {
+                    // SUKCES
+                    currentUser = { name: nameInput, role: selectedRole };
+                    proceedLogin();
+                } else {
+                    alert("Błędny PIN!");
+                }
+            } else {
+                alert("Nie ma takiego zawodnika w bazie.");
+            }
+        } catch (e) {
+            console.error("Błąd logowania:", e);
+            alert("Wystąpił błąd podczas logowania.");
+        }
+    }
+
+    function proceedLogin() {
+        const displayName = currentUser.name.charAt(0).toUpperCase() + currentUser.name.slice(1);
+        
+        document.getElementById('user-display').innerText = `Zalogowano jako: ${displayName}`;
+        document.getElementById('view-login').classList.remove('active');
+        
+        document.getElementById('username-input').value = '';
+        document.getElementById('user-code').value = '';
+
+        if (currentUser.role === 'coach') {
+            document.getElementById('view-coach').classList.add('active');
+            renderCoachList();
+            renderPlayerManagement(); 
+        } else {
+            document.getElementById('view-player').classList.add('active');
+            renderPlayerList();
+        }
+    }
+
+    function logout() {
+        currentUser = null;
+        expandedCards.clear(); // Czyścimy stan rozwinięcia przy wylogowaniu
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById('view-login').classList.add('active');
+        document.getElementById('user-display').innerText = '';
+    }
+
+    // --- COACH LOGIC ---
+    function addTraining() {
+        const date = document.getElementById('new-date').value;
+        const time = document.getElementById('new-time').value;
+        const desc = document.getElementById('new-desc').value;
+
+        if(!date || !time || !desc) return alert("Wypełnij wszystkie pola!");
+
+        const newTraining = {
+            id: Date.now(),
+            date: date,
+            time: time,
+            desc: desc
+        };
+
+        appData.trainings.push(newTraining);
+        appData.attendance[newTraining.id] = {};
+        saveData();
+        renderCoachList();
+        
+        document.getElementById('new-desc').value = '';
+    }
+    
+    // ZARZĄDZANIE GRACZAMI
+    function addNewPlayer() {
+        const newName = document.getElementById('new-player-name').value.trim().toLowerCase();
+        const newPin = document.getElementById('new-player-pin').value.trim();
+
+        if(!newName || !newPin) return alert("Podaj nazwę i PIN!");
+
+        if(appData.users[newName]) {
+            return alert("Taki zawodnik już istnieje!");
+        }
+
+        appData.users[newName] = newPin;
+        saveData();
+        renderPlayerManagement(); 
+        
+        // Czyścimy pola
+        document.getElementById('new-player-name').value = '';
+        document.getElementById('new-player-pin').value = '';
+    }
+
+    function renderPlayerManagement() {
+        const listContainer = document.getElementById('active-players-list');
+        listContainer.innerHTML = '';
+
+        // Pobieramy wszystkich userów oprócz trenera (Dawida)
+        const players = Object.keys(appData.users).filter(u => u !== 'dawid');
+
+        if (players.length === 0) {
+            listContainer.innerHTML = '<div style="color:#666; font-size:0.8rem; text-align:center;">Brak zawodników w bazie</div>';
+            return;
+        }
+
+        players.forEach(p => {
+            const dispName = p.charAt(0).toUpperCase() + p.slice(1);
+            listContainer.innerHTML += `
+                <div class="player-manage-item">
+                    <span>${dispName}</span>
+                    <button onclick="deletePlayer('${p}')">USUŃ</button>
+                </div>
+            `;
+        });
+    }
+
+    function deletePlayer(playerName) {
+        if(confirm(`Czy na pewno usunąć zawodnika ${playerName} z bazy? Nie będzie mógł się zalogować.`)) {
+            delete appData.users[playerName];
+            saveData();
+            renderPlayerManagement();
+        }
+    }
+
+    function renderCoachList() {
+        const container = document.getElementById('coach-list');
+        container.innerHTML = '';
+
+        const sorted = appData.trainings.sort((a,b) => new Date(b.date) - new Date(a.date));
+
+        sorted.forEach(t => {
+            const att = appData.attendance[t.id] || {};
+            
+            let countYes = 0, countNo = 0, countMaybe = 0;
+            let listHTML = '';
+
+            for (const [player, status] of Object.entries(att)) {
+                if(status === 'yes') countYes++;
+                if(status === 'no') countNo++;
+                if(status === 'maybe') countMaybe++;
+
+                let color = status === 'yes' ? 'var(--light-green)' : (status === 'no' ? 'var(--danger)' : 'var(--warn)');
+                let icon = status === 'yes' ? '✅' : (status === 'no' ? '❌' : '❓');
+                
+                const dispName = player.charAt(0).toUpperCase() + player.slice(1);
+
+                listHTML += `<div class="stat-item">
+                                <span>${dispName}</span> 
+                                <span style="color:${color}; font-weight:bold;">${icon}</span>
+                             </div>`;
+            }
+
+            const totalVotes = countYes + countNo + countMaybe;
+            const presenceRate = totalVotes > 0 ? Math.round((countYes / totalVotes) * 100) : 0;
+
+            // Sprawdzamy czy ta karta ma być rozwinięta
+            const isExpanded = expandedCards.has(t.id) ? 'expanded' : '';
+
+            container.innerHTML += `
+                <div class="training-card">
+                    <div class="training-header">
+                        <span class="training-date">${t.date} | ${t.time}</span>
+                        <button onclick="deleteTraining(${t.id})" style="color:#666; background:none; border:none; cursor:pointer;">X</button>
+                    </div>
+                    <div style="font-size: 1.1rem; margin-bottom: 10px;">${t.desc}</div>
+                    
+                    <div class="stats-summary">
+                        <div class="stat-box color-yes">
+                            <span class="stat-count">${countYes}</span>
+                            <span class="stat-label">Będzie</span>
+                        </div>
+                        <div class="stat-box color-maybe">
+                            <span class="stat-count">${countMaybe}</span>
+                            <span class="stat-label">Nie wiem</span>
+                        </div>
+                        <div class="stat-box color-no">
+                            <span class="stat-count">${countNo}</span>
+                            <span class="stat-label">Odpada</span>
+                        </div>
+                        <div class="stat-box" style="border-left: 1px solid #444; padding-left: 10px;">
+                            <span class="stat-count" style="color:white;">${presenceRate}%</span>
+                            <span class="stat-label">Frekwencja</span>
+                        </div>
+                    </div>
+
+                    <button class="toggle-details-btn" onclick="toggleDetails(${t.id})">Pokaż/Ukryj listę nazwisk</button>
+                    <div class="stats-list ${isExpanded}">
+                        ${listHTML || '<div style="text-align:center; color:#666;">Brak głosów</div>'}
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function toggleDetails(id) {
+        // Zamiast tylko zmieniać klasę w DOM, zapisujemy stan w pamięci
+        // Dzięki temu po auto-odświeżeniu lista pozostanie otwarta
+        if (expandedCards.has(id)) {
+            expandedCards.delete(id);
+        } else {
+            expandedCards.add(id);
+        }
+        renderCoachList(); // Przerysowujemy, żeby zaaplikować klasę 'expanded'
+    }
+
+    function deleteTraining(id) {
+        if(confirm("Usunąć ten trening?")) {
+            appData.trainings = appData.trainings.filter(t => t.id !== id);
+            delete appData.attendance[id];
+            saveData();
+            renderCoachList();
+        }
+    }
+
+    // --- PLAYER LOGIC ---
+    function renderPlayerList() {
+        const container = document.getElementById('player-list');
+        container.innerHTML = '';
+
+        const sorted = appData.trainings.sort((a,b) => new Date(a.date) - new Date(b.date));
+
+        if (sorted.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color:#666;">Brak planów w bazie.</p>';
+            return;
+        }
+
+        sorted.forEach(t => {
+            const myStatus = appData.attendance[t.id] ? appData.attendance[t.id][currentUser.name] : null;
+
+            container.innerHTML += `
+                <div class="training-card">
+                    <div class="training-header">
+                        <span class="training-date">${t.date} ${t.time}</span>
+                    </div>
+                    <div style="font-size: 1.2rem; margin-bottom: 15px;">${t.desc}</div>
+                    
+                    <div class="attendance-options">
+                        <button class="att-btn btn-yes ${myStatus === 'yes' ? 'active' : ''}" onclick="setAttendance(${t.id}, 'yes')">BĘDĘ</button>
+                        <button class="att-btn btn-maybe ${myStatus === 'maybe' ? 'active' : ''}" onclick="setAttendance(${t.id}, 'maybe')">NIE WIEM</button>
+                        <button class="att-btn btn-no ${myStatus === 'no' ? 'active' : ''}" onclick="setAttendance(${t.id}, 'no')">ODPADAM</button>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function setAttendance(trainingId, status) {
+        // Zawsze pobieramy najświeższe dane przed zapisem, żeby nie nadpisać cudzych zmian
+        const freshData = localStorage.getItem('teamAppData');
+        if (freshData) appData = JSON.parse(freshData);
+
+        if (!appData.attendance[trainingId]) {
+            appData.attendance[trainingId] = {};
+        }
+        appData.attendance[trainingId][currentUser.name] = status;
+        saveData();
+        renderPlayerList();
+    }
+
+</script>
+
+</body>
+</html>
