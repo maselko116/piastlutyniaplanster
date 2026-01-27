@@ -218,6 +218,25 @@
         .btn-no { background-color: var(--danger); color: white; }
         .btn-maybe { background-color: var(--warn); color: black; }
 
+        /* Notes & Inputs */
+        .note-input {
+            width: 100%;
+            margin-top: 10px;
+            padding: 8px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid #444;
+            color: #ccc;
+            font-size: 0.8rem;
+            border-radius: 4px;
+        }
+
+        .player-note-display {
+            font-size: 0.75rem;
+            color: #aaa;
+            font-style: italic;
+            margin-top: 2px;
+        }
+
         /* Coach Stats Details */
         .stats-list {
             font-size: 0.9rem;
@@ -236,8 +255,14 @@
         .stat-item {
             display: flex;
             justify-content: space-between;
+            align-items: center; /* Wyrównanie do środka */
             border-bottom: 1px solid #333;
             padding: 8px 0; /* Większy odstęp dla czytelności */
+        }
+
+        .stat-item-info {
+            display: flex;
+            flex-direction: column;
         }
 
         .toggle-details-btn {
@@ -371,6 +396,7 @@
     const DEFAULT_USERS = {
         "maslo": "1919",
         "czaja": "1212",
+        "test": "1234", // NOWY USER TESTOWY
         "dawid": "2356" // Trener
     };
 
@@ -390,11 +416,16 @@
             if (!appData.users) {
                 appData.users = DEFAULT_USERS;
             }
+            // Inicjalizacja notatek, jeśli stara wersja ich nie ma
+            if (!appData.notes) {
+                appData.notes = {};
+            }
         } else {
             appData = {
                 users: DEFAULT_USERS,
                 trainings: INITIAL_TRAININGS,
-                attendance: {} 
+                attendance: {},
+                notes: {} // Nowy obiekt na notatki
             };
             localStorage.setItem('teamAppData', JSON.stringify(appData));
         }
@@ -417,6 +448,13 @@
             const currentString = localStorage.getItem('teamAppData');
             // Jeśli dane na dysku są inne niż te, które mamy załadowane...
             if (currentString && currentString !== JSON.stringify(appData)) {
+                // UWAGA: Nie odświeżamy jeśli użytkownik jest w trakcie pisania (focus na input)
+                // Proste sprawdzenie czy aktywny element to input
+                if (document.activeElement && document.activeElement.tagName === 'INPUT') {
+                    console.log("Wstrzymano odświeżanie - użytkownik pisze...");
+                    return;
+                }
+
                 console.log("Wykryto zmianę danych! Odświeżam widok...");
                 appData = JSON.parse(currentString); // Aktualizujemy pamięć
                 
@@ -430,8 +468,6 @@
             }
         } catch (error) {
             console.error("Błąd synchronizacji (Auto-Sync):", error);
-            // Nie wyświetlamy alertu w pętli, żeby nie irytować użytkownika,
-            // ale logujemy błąd w konsoli dla diagnostyki.
         }
     }, 10000); // Interwał: 10000ms = 10 sekund
 
@@ -534,6 +570,7 @@
 
         appData.trainings.push(newTraining);
         appData.attendance[newTraining.id] = {};
+        appData.notes[newTraining.id] = {}; // Inicjalizacja notatek dla treningu
         saveData();
         renderCoachList();
         
@@ -599,6 +636,7 @@
 
         sorted.forEach(t => {
             const att = appData.attendance[t.id] || {};
+            const notes = appData.notes ? (appData.notes[t.id] || {}) : {};
             
             let countYes = 0, countNo = 0, countMaybe = 0;
             let listHTML = '';
@@ -612,9 +650,15 @@
                 let icon = status === 'yes' ? '✅' : (status === 'no' ? '❌' : '❓');
                 
                 const dispName = player.charAt(0).toUpperCase() + player.slice(1);
+                
+                // Pobieramy notatkę gracza, jeśli istnieje
+                const playerNote = notes[player] ? `<span class="player-note-display">📝 ${notes[player]}</span>` : '';
 
                 listHTML += `<div class="stat-item">
-                                <span>${dispName}</span> 
+                                <div class="stat-item-info">
+                                    <span>${dispName}</span>
+                                    ${playerNote}
+                                </div>
                                 <span style="color:${color}; font-weight:bold;">${icon}</span>
                              </div>`;
             }
@@ -662,20 +706,19 @@
     }
 
     function toggleDetails(id) {
-        // Zamiast tylko zmieniać klasę w DOM, zapisujemy stan w pamięci
-        // Dzięki temu po auto-odświeżeniu lista pozostanie otwarta
         if (expandedCards.has(id)) {
             expandedCards.delete(id);
         } else {
             expandedCards.add(id);
         }
-        renderCoachList(); // Przerysowujemy, żeby zaaplikować klasę 'expanded'
+        renderCoachList(); 
     }
 
     function deleteTraining(id) {
         if(confirm("Usunąć ten trening?")) {
             appData.trainings = appData.trainings.filter(t => t.id !== id);
             delete appData.attendance[id];
+            delete appData.notes[id]; // Usuwamy też notatki
             saveData();
             renderCoachList();
         }
@@ -695,6 +738,8 @@
 
         sorted.forEach(t => {
             const myStatus = appData.attendance[t.id] ? appData.attendance[t.id][currentUser.name] : null;
+            // Pobieramy istniejącą notatkę
+            const myNote = (appData.notes && appData.notes[t.id] && appData.notes[t.id][currentUser.name]) || '';
 
             container.innerHTML += `
                 <div class="training-card">
@@ -708,13 +753,19 @@
                         <button class="att-btn btn-maybe ${myStatus === 'maybe' ? 'active' : ''}" onclick="setAttendance(${t.id}, 'maybe')">NIE WIEM</button>
                         <button class="att-btn btn-no ${myStatus === 'no' ? 'active' : ''}" onclick="setAttendance(${t.id}, 'no')">ODPADAM</button>
                     </div>
+                    
+                    <!-- NOWE POLE NOTATKI -->
+                    <input type="text" 
+                           class="note-input" 
+                           placeholder="Notatka dla trenera (np. spóźnię się 10min)" 
+                           value="${myNote}" 
+                           oninput="saveNote(${t.id}, this)">
                 </div>
             `;
         });
     }
 
     function setAttendance(trainingId, status) {
-        // Zawsze pobieramy najświeższe dane przed zapisem, żeby nie nadpisać cudzych zmian
         const freshData = localStorage.getItem('teamAppData');
         if (freshData) appData = JSON.parse(freshData);
 
@@ -724,6 +775,15 @@
         appData.attendance[trainingId][currentUser.name] = status;
         saveData();
         renderPlayerList();
+    }
+
+    function saveNote(trainingId, inputElement) {
+        // Zapisujemy notatkę w czasie rzeczywistym
+        if (!appData.notes) appData.notes = {};
+        if (!appData.notes[trainingId]) appData.notes[trainingId] = {};
+        
+        appData.notes[trainingId][currentUser.name] = inputElement.value;
+        saveData();
     }
 
 </script>
